@@ -21,19 +21,17 @@
 	module eval_module(clk, rst, data_in1, data_in2, result, kernel_enable);
 	
 		input clk, rst;
-	
-		input [7:0]	data_in1;
+	    input [7:0]	data_in1;
 		input [7:0]	data_in2;
-		
 		input kernel_enable;
-	    reg [7:0] L1_rom_out, L1_flipped;
-		output reg [7:0] result;
-	
+	    
+	    output reg [7:0] result;
+	    
 		wire [3:0] address =	data_in1[3:0];
-		
 		wire [7:0] rom_out;
 		wire [7:0] flipped = 	~(data_in2);
 		
+	    reg [7:0]  L1_flipped, L1_data_in1, L2_flipped, L2_rom_out;
 	    
 		rom_memory rom(.address(address),.data(rom_out));
 	
@@ -46,15 +44,19 @@
 			else
 			begin
 			
-		       L1_rom_out <= rom_out;
-		       L1_flipped <= flipped;
+		       L1_data_in1 <= data_in1;
+		       L1_flipped <= flipped;  //assigning values to registers for buffer for 1st adder
+		       
+		       L2_flipped <= flipped;
+		       L2_rom_out <= rom_out;  //assigning values to registers for buffer for 2nd adder
+		       
 	    
 				if(kernel_enable)
-					   
-				   result <=	L1_rom_out + L1_flipped + data_in1;
-				 
+				begin
+				   result <=  L2_rom_out + L2_flipped +data_in1;
+				 end
 				else	
-					result <=	flipped + data_in1;
+					result <=	L1_flipped + L1_data_in1;
 			end
 		end
 endmodule
