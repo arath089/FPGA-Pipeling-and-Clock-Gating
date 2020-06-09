@@ -26,14 +26,15 @@
 		input [7:0]	data_in2;
 		
 		input kernel_enable;
-	
+	    reg [7:0] L1_rom_out, L1_flipped;
 		output reg [7:0] result;
 	
 		wire [3:0] address =	data_in1[3:0];
 		
 		wire [7:0] rom_out;
 		wire [7:0] flipped = 	~(data_in2);
-	
+		
+	    
 		rom_memory rom(.address(address),.data(rom_out));
 	
 		always@(posedge clk)
@@ -44,12 +45,16 @@
 			end
 			else
 			begin
+			
+		       L1_rom_out <= rom_out;
+		       L1_flipped <= flipped;
+	    
 				if(kernel_enable)
-					result <=	rom_out + flipped + data_in1;
+					   
+				   result <=	L1_rom_out + L1_flipped + data_in1;
+				 
 				else	
 					result <=	flipped + data_in1;
 			end
 		end
 endmodule
-
-  
